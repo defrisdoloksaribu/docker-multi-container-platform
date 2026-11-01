@@ -199,4 +199,4 @@ Beberapa hal yang dapat dikembangkan pada project ini:
 
 **Defris Doloksaribu** · [GitHub](https://github.com/defrisdoloksaribu)
 
-*Project portofolio DevOps yang berfokus pada containerization, CI automation, persistent storage, dan infrastructure monitoring.*
+
