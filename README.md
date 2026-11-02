@@ -1,6 +1,6 @@
 # Docker Multi-Container Inventory Platform
 
-**Platform inventory berbasis Docker dengan REST API, penyimpanan database persisten, CI, dan monitoring terintegrasi.**
+**A containerized inventory platform featuring REST API services, persistent database storage, automated CI, and integrated infrastructure monitoring.**
 
 [![CI](https://github.com/defrisdoloksaribu/docker-multi-container-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/defrisdoloksaribu/docker-multi-container-platform/actions/workflows/ci.yml)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
@@ -9,32 +9,44 @@
 ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)
 ![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)
 
-**Penulis:** Defris Doloksaribu  
-**Fokus:** DevOps · Docker · CI · Monitoring  
+**Author:** Defris Doloksaribu  
+**Focus:** DevOps · Containerization · CI · Infrastructure Monitoring  
 **Repository:** [docker-multi-container-platform](https://github.com/defrisdoloksaribu/docker-multi-container-platform)
 
 ---
 
-## Ringkasan Proyek
+## 1. Project Overview
 
-Project ini membangun platform inventory menggunakan **Docker Compose** dengan pendekatan multi-container.
+The **Docker Multi-Container Inventory Platform** is a practical DevOps project designed to demonstrate containerized application deployment, persistent storage, continuous integration, and infrastructure monitoring.
 
-FastAPI digunakan untuk menyediakan REST API, PostgreSQL sebagai database dengan penyimpanan persisten, dan Nginx sebagai reverse proxy.
+The application uses **FastAPI** to provide inventory REST API endpoints, **PostgreSQL** for persistent data storage, and **Nginx** as a reverse proxy.
 
-Untuk memantau kondisi container dan aplikasi, project ini menggunakan **Prometheus, cAdvisor, Grafana**, serta custom **Python Docker Stats Exporter**. GitHub Actions digunakan untuk menjalankan pengujian otomatis dan membangun Docker image.
+Infrastructure monitoring is implemented using **Prometheus, cAdvisor, and Grafana**, supported by a custom Python-based Docker Stats Exporter. **GitHub Actions** automates application testing and Docker image builds.
 
-## Arsitektur Sistem
+### Key Features
+
+- Multi-container application orchestration using Docker Compose.
+- REST API development with FastAPI.
+- Persistent database storage using PostgreSQL.
+- Reverse proxy configuration with Nginx.
+- Container resource monitoring using Prometheus and cAdvisor.
+- Custom Docker metrics collection using Python.
+- CI workflow for automated testing and Docker image builds.
+
+## 2. System Architecture
+
+The following diagram illustrates the application flow, monitoring components, and continuous integration workflow.
 
 ```mermaid
 flowchart TB
-    U(["Pengguna"])
+    U(["Client"])
     N["Nginx<br/>Port 8080"]
     A["FastAPI<br/>Inventory API"]
     D[("PostgreSQL 17<br/>Persistent Volume")]
 
     U --> N --> A --> D
 
-    subgraph MON["Monitoring"]
+    subgraph MON["Infrastructure Monitoring"]
         C["cAdvisor"]
         E["Docker Stats Exporter<br/>Windows Host :9713"]
         P["Prometheus :9090"]
@@ -54,31 +66,45 @@ flowchart TB
     end
 ```
 
-Project ini menggunakan **enam layanan Docker Compose**, yaitu `api`, `db`, `nginx`, `cadvisor`, `prometheus`, dan `grafana`.
+### Service Components
 
-Custom Docker Stats Exporter dijalankan secara terpisah pada Windows host, bukan sebagai layanan Docker Compose.
+The platform consists of six Docker Compose services:
 
-## Teknologi yang Digunakan
-
-| Area | Teknologi |
+| Service | Responsibility |
 |---|---|
-| Aplikasi | Python, FastAPI |
+| `api` | Provides inventory REST API endpoints using FastAPI |
+| `db` | Stores inventory data using PostgreSQL |
+| `nginx` | Routes incoming requests to the API |
+| `cadvisor` | Collects container resource metrics |
+| `prometheus` | Collects and stores monitoring metrics |
+| `grafana` | Visualizes monitoring data through dashboards |
+
+**Custom Docker Stats Exporter** runs separately on the Windows host. It is not part of the six Docker Compose services.
+
+## 3. Technology Stack
+
+| Category | Technology |
+|---|---|
+| Application | Python, FastAPI |
 | Database | PostgreSQL 17 |
-| Container | Docker, Docker Compose |
+| Containerization | Docker, Docker Compose |
 | Reverse Proxy | Nginx |
 | Monitoring | Prometheus, cAdvisor, Grafana |
 | Custom Metrics | Python Docker Stats Exporter |
-| CI | GitHub Actions |
+| Continuous Integration | GitHub Actions |
 | Testing | pytest |
 
-## Menjalankan Project
+## 4. Getting Started
 
-**Persyaratan:**
-- Docker Desktop dengan Linux containers.
+### Prerequisites
+
+Make sure the following tools are installed:
+
+- Docker Desktop with Linux containers enabled.
 - Git.
-- Python 3 untuk menjalankan custom exporter.
+- Python 3 for the custom metrics exporter.
 
-Clone repository:
+### Clone the Repository
 
 ```cmd
 git clone https://github.com/defrisdoloksaribu/docker-multi-container-platform.git
@@ -86,24 +112,30 @@ cd docker-multi-container-platform
 copy .env.example .env
 ```
 
-Atur credentials pada file `.env`, kemudian jalankan seluruh layanan:
+Configure the required credentials and environment variables in the `.env` file before starting the services.
+
+### Start the Platform
 
 ```cmd
 docker compose up --build -d
 docker compose ps
 ```
 
-Jalankan custom exporter melalui CMD kedua:
+The command starts the application and monitoring services in detached mode.
+
+### Start the Custom Exporter
+
+Open a second CMD terminal from the project root directory:
 
 ```cmd
 py tools\docker-stats-exporter\exporter.py
 ```
 
-Biarkan proses exporter tetap berjalan selama custom metrics dibutuhkan.
+Keep the exporter process running while custom Docker metrics are required.
 
-## Akses Layanan
+## 5. Service Endpoints
 
-| Komponen | Alamat |
+| Component | URL |
 |---|---|
 | Inventory API | http://localhost:8080 |
 | API Health Check | http://localhost:8080/health |
@@ -111,33 +143,43 @@ Biarkan proses exporter tetap berjalan selama custom metrics dibutuhkan.
 | Prometheus | http://localhost:9090 |
 | Prometheus Targets | http://localhost:9090/targets |
 | Grafana | http://localhost:3000 |
-| Exporter Metrics | http://localhost:9713/metrics |
+| Custom Exporter Metrics | http://localhost:9713/metrics |
 
-Contoh pemeriksaan API melalui Windows CMD:
+### Verify the API
+
+Run the following commands from Windows CMD:
 
 ```cmd
 curl.exe http://localhost:8080/health
 curl.exe http://localhost:8080/items
 ```
 
-Grafana menggunakan Prometheus sebagai data source melalui alamat internal Docker:
+The health endpoint can be used to verify API availability, while the items endpoint returns inventory data.
+
+### Grafana Data Source
+
+Configure Prometheus as the Grafana data source using the internal Docker service address:
 
 ```text
 http://prometheus:9090
 ```
 
-Gunakan credentials yang telah diatur pada file `.env` untuk login.
+Use the credentials configured in `.env` to access Grafana.
 
-## Monitoring dan Metrics
+## 6. Infrastructure Monitoring
 
-Custom exporter menyediakan beberapa metrik untuk memantau penggunaan resource container:
+The platform uses Prometheus and cAdvisor to collect and monitor container metrics.
 
-- `docker_container_cpu_percent`
-- `docker_container_memory_usage_bytes`
-- `docker_container_memory_limit_bytes`
-- `docker_container_up`
+The custom Python exporter provides additional Docker resource metrics:
 
-Contoh query PromQL:
+| Metric | Description |
+|---|---|
+| `docker_container_cpu_percent` | Container CPU usage percentage |
+| `docker_container_memory_usage_bytes` | Container memory usage in bytes |
+| `docker_container_memory_limit_bytes` | Container memory limit in bytes |
+| `docker_container_up` | Container availability status |
+
+### Example PromQL Queries
 
 ```promql
 up{job="cadvisor"}
@@ -147,56 +189,68 @@ docker_container_memory_usage_bytes
 docker_container_up
 ```
 
-**Catatan:** Exporter membaca data melalui perintah `docker stats --no-stream`. Container yang berhenti dapat tidak muncul dalam output metrics. Exporter juga perlu dijalankan secara manual pada Windows host.
+**Exporter limitation:** The custom exporter retrieves container statistics using `docker stats --no-stream`. Stopped containers may not appear in the returned metrics. The exporter must also be started manually on the Windows host.
 
-## CI dan Pengujian
+## 7. Continuous Integration and Testing
 
-GitHub Actions menjalankan workflow ketika terdapat `push` atau `pull_request` ke branch `main`.
+GitHub Actions runs the CI workflow when changes are pushed or pull requests are opened against the `main` branch.
 
-Tahapan workflow:
+### CI Pipeline Stages
 
-1. Mengambil source code repository.
-2. Menyiapkan environment Python.
-3. Menginstal development dependencies.
-4. Menjalankan pengujian menggunakan pytest.
-5. Membangun Docker image.
+1. Check out the repository source code.
+2. Set up the Python environment.
+3. Install development dependencies.
+4. Execute automated tests using pytest.
+5. Build the Docker image.
 
-Hasil pengujian lokal yang pernah tercatat adalah **3 passed**. Periksa tab **Actions** pada GitHub untuk melihat status workflow terbaru.
+A previously recorded local test result was **3 passed**. Check the repository's **Actions** tab for the latest workflow execution status.
 
-Pengujian project juga mencakup:
-- Pemeriksaan API health endpoint.
-- Pemeriksaan status container dan monitoring.
-- Pengujian restart API secara manual.
-- Pengujian persistensi database setelah container database dibuat ulang dengan named volume tetap dipertahankan.
+### Validation and Manual Tests
 
-**Batasan implementasi:** Pengujian pemulihan API dilakukan melalui manual restart, bukan automatic self-healing. Workflow CI saat ini menjalankan testing dan image build, belum melakukan automatic deployment.
+The project validation activities include:
 
-## Dokumentasi dan Bukti Implementasi
+- API health endpoint verification.
+- Container status and monitoring checks.
+- Manual API restart testing.
+- Database persistence testing after recreating the database container while retaining its named volume.
 
-| Dokumentasi | Keterangan |
+### Implementation Scope
+
+The API recovery test uses a **manual restart**, not automatic self-healing.
+
+The current GitHub Actions workflow performs automated testing and Docker image building. It does not yet implement automatic deployment.
+
+## 8. Project Documentation and Evidence
+
+Detailed documentation is available in the `docs/` directory.
+
+| Document | Description |
 |---|---|
-| [Arsitektur Sistem](docs/architecture/ARCHITECTURE.md) | Desain dan komunikasi antarservice |
-| [Panduan Instalasi](docs/guides/INSTALLATION.md) | Persiapan dan menjalankan project |
-| [Panduan Monitoring](docs/guides/MONITORING.md) | Prometheus, Grafana, dan exporter |
-| [Panduan Pengujian](docs/guides/TESTING.md) | Skenario dan hasil pengujian |
-| [Troubleshooting](docs/guides/TROUBLESHOOTING.md) | Masalah umum dan solusinya |
-| [Laporan Proyek](docs/laporan/README.md) | Dokumentasi laporan |
-| [Bukti Screenshot](docs/screenshots/README.md) | Daftar bukti implementasi |
+| [System Architecture](docs/architecture/ARCHITECTURE.md) | System design and service communication |
+| [Installation Guide](docs/guides/INSTALLATION.md) | Environment setup and deployment instructions |
+| [Monitoring Guide](docs/guides/MONITORING.md) | Prometheus, Grafana, and exporter configuration |
+| [Testing Guide](docs/guides/TESTING.md) | Testing scenarios and validation procedures |
+| [Troubleshooting Guide](docs/guides/TROUBLESHOOTING.md) | Common issues and troubleshooting steps |
+| [Project Report](docs/laporan/README.md) | Project report and implementation documentation |
+| [Screenshot Evidence](docs/screenshots/README.md) | Screenshot index and implementation evidence |
 
-Lihat folder [docs/screenshots](docs/screenshots/) untuk melihat tampilan API, container, Prometheus, Grafana, dan GitHub Actions.
+See the [screenshots directory](docs/screenshots/) for visual evidence of the API, Docker containers, Prometheus, Grafana, and GitHub Actions.
 
-## Pengembangan Selanjutnya
+## 9. Current Limitations and Future Improvements
 
-Beberapa hal yang dapat dikembangkan pada project ini:
+The current implementation focuses on a local Docker Compose environment.
 
-- Menambahkan integration testing.
-- Mengimplementasikan database backup dan restore.
-- Menambahkan alert rules pada sistem monitoring.
-- Meningkatkan keamanan container.
-- Mengembangkan proses automatic deployment.
+Potential improvements include:
+
+- Adding integration tests for application and database interactions.
+- Implementing automated database backup and restore procedures.
+- Configuring Prometheus alert rules.
+- Improving container security and resource management.
+- Implementing an automated deployment workflow.
+
+These items are future development goals and are not claimed as completed features.
 
 ---
 
-**Defris Doloksaribu** · [GitHub](https://github.com/defrisdoloksaribu)
-
+**Defris Doloksaribu** · [GitHub Profile](https://github.com/defrisdoloksaribu)
 
